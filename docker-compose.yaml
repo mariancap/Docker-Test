@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+
+  nginx-reverse-proxy:
+    image: "jwilder/nginx-proxy"
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - app-network
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./nginx/vhost.d:/etc/nginx/vhost.d
+      - ./nginx/html:/usr/share/nginx/html
+
+
+  nginx-ssl:
+    image: "jrcs/letsencrypt-nginx-proxy-companion"
+    restart: unelss-stopped
+    container_name: nginx-ssl
+    environment:
+      NGINX_PROXY_CONTAINER: nginx-proxy
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - ./nginx/certs:/etc/nginx/certs
+      - ./nginx/vhost.d:/etc/nginx/vhost.d
+      - ./nginx/html:/usr/share/nginx/html
+    depends_on:
+      - nginx-reverse-proxy
+    networks:
+      - app-network
+
+  app:
+    image: alpine-nginx-static
+    build:
+      context: /home/ubuntu/Docker_homework/nginx-static
+      dockerfile: dockerfile
+    ports:
+      - 80:80
+    container_name: nginx-app
+    restart: unless-stopped
+    environment:
+      VIRTUAL_HOST: schoolofdevops.site
+      LETSENCRYPT_HOST: schoolofdevops.site
+      LETSENCRYPT_EMAIL: mareancap11@gmail.com
+    depends_on:
+        - nginx-reverse-proxy
+        - nginx-ssl
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
