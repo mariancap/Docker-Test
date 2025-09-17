@@ -42,7 +42,7 @@ pipeline{
             steps{
                 script{
                     sleep 10
-                    sh 'curl http://localhost:8081'
+                    sh 'curl -f http://host.docker.internal:8081'
                 }
             }
         }
@@ -50,14 +50,14 @@ pipeline{
         post{
             success{
                 script{
+                    sh 'docker image prune -f || true'
                     echo "The container ${appContainer.id} is running the image ${appImage.id}"
                 }
             }
             failure{
                 script{
                     if (appContainer) {
-                        appContainer.stop()
-                        appContainer.remove()
+                        sh "docker rm -f ${appContainer.id} || true"
                     }
                 }
             }
