@@ -11,18 +11,30 @@ pipeline{
                 git branch: 'main', credentialsId: 'jen-doc-git', url: 'https://github.com/mariancap/Docker-Test.git'
             }
         }
+        stage("Cleanup old containers (by name prefix)") {
+            steps {
+                script {
+                    sh '''
+                        set -e
+                        old=$(docker ps -aq --filter "name=^alpine-nginx-static-") || true
+                        if [ -n "$old" ]; then
+                        docker rm -f $old
+                        fi
+                    '''
+                }
+            }
+        }
         stage("Build Docker Image"){
-
             steps{
                 script{
-                    appImage=docker.build("alpine-nginx-static"+"$BUILD_NUMBER")
+                    appImage = docker.build("alpine-nginx-static:${BUILD_NUMBER}", "--label ci.job=${JOB_NAME} .")
                 }
             }
         }
         stage("Run Docker Container"){
-            steps{
+
                 script{
-                    appContainer=appImage.run("-d -p 8081:80")
+                    appContainer = appImage.run("--name alpine-nginx-static-${BUILD_NUMBER} -d -p 8081:80")
                 }
             }
         }
@@ -34,12 +46,19 @@ pipeline{
                 }
             }
         }
-        stage("Clean up"){
-            steps{
+        post{
+            success{
                 script{
-                    sh 'docker system prune -a --volumes -f -y'
+                    echo "The container ${appContainer.id} is running the image ${appImage.id}"
+                }
+            }
+            failure{
+                script{
+                    if (appContainer) {
+                        appContainer.stop()
+                        appContainer.remove()
+                    }
                 }
             }
         }
     }
-}
