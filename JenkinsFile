@@ -8,11 +8,13 @@ pipeline{
             }
         }
         stage("Build Docker Image"){
+
             steps{
                 script{
                     docker.build("alpine-nginx-static"+"$BUILD_NUMBER")
                 }
             }
+
         }
     }
 }
