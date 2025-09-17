@@ -1,6 +1,11 @@
 pipeline{
     agent any
 
+    environment {
+        def appImage
+        def appContainer
+    }
+
     stages{
         stage("Checkout GitHub"){
             steps{
@@ -11,10 +16,16 @@ pipeline{
 
             steps{
                 script{
-                    docker.build("alpine-nginx-static"+"$BUILD_NUMBER")
+                    appImage=docker.build("alpine-nginx-static"+"$BUILD_NUMBER")
                 }
             }
-
+        }
+        stage("Run Docker Container"){
+            steps{
+                script{
+                    appContainer=appImage.run("-d -p 8081:80")
+                }
+            }
         }
     }
 }
