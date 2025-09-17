@@ -1,10 +1,9 @@
+def appContainer
+def appImage
+
 pipeline{
     agent any
 
-    environment {
-        def appImage = ""
-        def appContainer = ""
-    }
 
     stages{
         stage("Checkout GitHub"){
@@ -24,6 +23,21 @@ pipeline{
             steps{
                 script{
                     appContainer=appImage.run("-d -p 8081:80")
+                }
+            }
+        }
+        stage("Test Docker Container"){
+            steps{
+                script{
+                    sleep 10
+                    sh 'curl http://localhost:8081'
+                }
+            }
+        }
+        stage("Clean up"){
+            steps{
+                script{
+                    sh 'docker system prune -a --volumes -f -y'
                 }
             }
         }
