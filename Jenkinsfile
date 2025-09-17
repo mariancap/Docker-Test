@@ -2,8 +2,8 @@ pipeline{
     agent any
 
     environment {
-        def appImage
-        def appContainer
+        def appImage = ""
+        def appContainer = ""
     }
 
     stages{
