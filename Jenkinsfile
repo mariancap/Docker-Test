@@ -32,10 +32,11 @@ pipeline{
             }
         }
         stage("Run Docker Container"){
-
+            steps{
                 script{
                     appContainer = appImage.run("--name alpine-nginx-static-${BUILD_NUMBER} -d -p 8081:80")
                 }
+            }
             }
         stage("Test Docker Container"){
             steps{
