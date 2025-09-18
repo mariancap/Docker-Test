@@ -23,6 +23,12 @@ pipeline{
             }
         }
 
+        stage("Tag image"){
+            steps{
+                sh 'docker tag alpine-nginx-static:${BUILD_NUMBER} marianacap/alpine-nginx-static:${BUILD_NUMBER}'
+            }
+        }
+
         stage("Docker Hub login"){
             steps{
                 sh 'echo $DOCKERHUB_CREDENTIAL_PSW | docker login -u $DOCKERHUB_CREDENTIAL_USR --password-stdin'
