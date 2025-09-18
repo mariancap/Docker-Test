@@ -27,7 +27,7 @@ pipeline{
         stage("Build Docker Image"){
             steps{
                 script{
-                    appImage = docker.build("alpine-nginx-static:${BUILD_NUMBER}", "--label ci.job=${JOB_NAME} .")
+                    appImage = docker.build("alpine-nginx-static:${BUILD_NUMBER}")
                 }
             }
         }
