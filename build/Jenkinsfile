@@ -18,8 +18,8 @@ pipeline{
         stage("Build Docker Image"){
             steps{
                 script{
-                    appImage = docker.build("alpine-nginx-static${BUILD_NUMBER}:latest")
-                    sh 'docker tag alpine-nginx-static${BUILD_NUMBER} mariancap/alpine-nginx-static${BUILD_NUMBER}:latest'
+                    appImage = docker.build("alpine-nginx-static:latest")
+                    sh 'docker tag alpine-nginx-static mariancap/alpine-nginx-static:latest'
                 }
             }
         }
@@ -32,13 +32,13 @@ pipeline{
 
         stage("Push Docker Image to DockerHub"){
             steps{
-                sh 'docker push mariancap/alpine-nginx-static${BUILD_NUMBER}:latest'
+                sh 'docker push mariancap/alpine-nginx-static:latest'
             }
         }
 
         stage("Clear images"){
             steps{
-                sh 'docker rmi alpine-nginx-static:${BUILD_NUMBER}'
+                sh 'docker rmi alpine-nginx-static:latest'
             }
         }
 
