@@ -19,13 +19,8 @@ pipeline{
             steps{
                 script{
                     appImage = docker.build("alpine-nginx-static:${BUILD_NUMBER}")
+                    sh 'docker tag alpine-nginx-static:${BUILD_NUMBER} mariancap/alpine-nginx-static:${BUILD_NUMBER}'
                 }
-            }
-        }
-
-        stage("Tag image"){
-            steps{
-                sh 'docker tag alpine-nginx-static:${BUILD_NUMBER} marianacap/alpine-nginx-static:${BUILD_NUMBER}'
             }
         }
 

@@ -4,9 +4,6 @@ def appImage
 pipeline{
     agent any
 
-    environment{
-        DOCKERHUB_CREDENTIAL = credentials('marian-dockerhub')
-    }
 
     stages{
         stage("Checkout GitHub"){
