@@ -1,0 +1,53 @@
+def appContainer
+def appImage
+
+pipeline{
+    agent any
+
+    environment{
+        DOCKERHUB_CREDENTIAL = credentials('marian-dockerhub')
+    }
+
+    stages{
+        stage("Checkout GitHub"){
+            steps{
+                git branch: 'main', credentialsId: 'jen-doc-git', url: 'https://github.com/mariancap/Docker-Test.git'
+            }
+        }
+
+        stage("Build Docker Image"){
+            steps{
+                script{
+                    appImage = docker.build("alpine-nginx-static:${BUILD_NUMBER}")
+                }
+            }
+        }
+
+        stage("Docker Hub login"){
+            steps{
+                sh 'echo $DOCKERHUB_CREDENTIAL_PSW | docker login -u $DOCKERHUB_CREDENTIAL_USR --password-stdin'
+            }
+        }
+
+        stage("Push Docker Image to DockerHub"){
+            steps{
+                sh 'docker push alpine-nginx-static:${BUILD_NUMBER}'
+            }
+        }
+
+        stage("Clear images"){
+            steps{
+                sh 'docker rmi alpine-nginx-static:${BUILD_NUMBER}'
+            }
+        }
+
+    }
+
+    post{
+        always{
+            sh 'docker logout'
+            cleanWs()
+        }
+
+    }
+}
