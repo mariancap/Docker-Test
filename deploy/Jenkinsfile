@@ -1,12 +1,10 @@
 def appContainer
-def appImage
 
 pipeline{
     agent any
 
     environment{
-        DOCKERHUB_CREDENTIAL = credentials('marian-dockerhub')
-        def img = "mariancap/alpine-nginx-static:latest"
+        def img = docker.image('mariancap/alpine-nginx-static:latest')
     }
 
     stages{
