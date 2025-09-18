@@ -1,11 +1,7 @@
 def appContainer
-
+def img
 pipeline{
     agent any
-
-    environment{
-        def img = docker.image('mariancap/alpine-nginx-static:latest')
-    }
 
     stages{
         stage("Checkout GitHub"){
@@ -30,6 +26,7 @@ pipeline{
         stage("Pull docker image from DockerHub"){
             steps{
                 script{
+                    img = docker.image('mariancap/alpine-nginx-static:latest')
                     img.pull()
                 }
             }
