@@ -6,6 +6,7 @@ pipeline{
 
     environment{
         DOCKERHUB_CREDENTIAL = credentials('marian-dockerhub')
+        def img = "mariancap/alpine-nginx-static:latest"
     }
 
     stages{
@@ -27,28 +28,19 @@ pipeline{
                 }
             }
         }
-        stage("Build Docker Image"){
+
+        stage("Pull docker image from DockerHub"){
             steps{
                 script{
-                    appImage = docker.build("alpine-nginx-static:${BUILD_NUMBER}", "--label ci.job=${JOB_NAME} .")
+                    img.pull()
                 }
             }
         }
 
-        stage("Push Docker Image to DockerHub"){
-            steps{
-                script{
-                    docker.withRegistry('https://index.docker.io/v1/', 'DOCKERHUB_CREDENTIAL') {
-                        appImage.push()
-                        appImage.push('latest')
-                    }
-                }
-            }
-        }
         stage("Run Docker Container"){
             steps{
                 script{
-                    appContainer = appImage.run("--name alpine-nginx-static-${BUILD_NUMBER} -d -p 8081:80")
+                    appContainer = img.run("--name alpine-nginx-static-${BUILD_NUMBER} -d -p 8081:80")
                 }
             }
             }
@@ -64,8 +56,7 @@ pipeline{
         post{
             success{
                 script{
-                    sh 'docker image prune -f || true'
-                    echo "The container ${appContainer.id} is running the image ${appImage.id}"
+                    echo "The container ${appContainer.id} is running the image ${img.id}"
                 }
             }
             failure{
